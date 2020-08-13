@@ -140,6 +140,43 @@ class KeicyFireStoreDataProvider {
     }
   }
 
+  Future<Map<String, dynamic>> getDocumentsLength(
+      {@required String path, List<Map<String, dynamic>> wheres, List<Map<String, dynamic>> orderby, int limit}) async {
+    CollectionReference ref;
+    Query query;
+    try {
+      ref = Firestore.instance.collection(path);
+      query = ref;
+      if (wheres != null) query = _getQuery(query, wheres);
+      if (orderby != null) query = _getOrderby(query, orderby);
+      if (limit != null) query.limit(limit);
+      QuerySnapshot snapshot = await query.getDocuments();
+      return {"state": true, "data": snapshot.documents.length};
+    } catch (e) {
+      print("____________ firebase getDocumentData error ____________");
+      print(e);
+      return {"state": false};
+    }
+  }
+
+  Stream<int> getDocumentsLengthStream({@required String path, List<Map<String, dynamic>> wheres, List<Map<String, dynamic>> orderby, int limit}) {
+    try {
+      CollectionReference ref;
+      Query query;
+      ref = Firestore.instance.collection(path);
+      query = ref;
+      if (wheres != null) query = _getQuery(query, wheres);
+      if (orderby != null) query = _getOrderby(query, orderby);
+      if (limit != null) query.limit(limit);
+      return query.snapshots().map((snapshot) {
+        return snapshot.documents.length;
+      });
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
   Future getDocumentDataWithChilCollection({
     @required String parentCollectionName,
     @required String childCollectionName,
