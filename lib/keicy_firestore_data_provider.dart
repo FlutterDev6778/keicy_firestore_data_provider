@@ -296,7 +296,7 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
         query = query.where(key, isEqualTo: val);
         break;
       case "null":
-        query = query.where(key, isEqualTo: val);
+        query = query.where(key, isNull: val);
         break;
       case "=":
         query = query.where(key, isEqualTo: val);
@@ -321,9 +321,6 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
         break;
       case "arrayContainsAny":
         query = query.where(key, arrayContainsAny: val);
-        break;
-      case "null":
-        query = query.where(key, isNull: val);
         break;
       default:
         query = query.where(key, isEqualTo: val);
