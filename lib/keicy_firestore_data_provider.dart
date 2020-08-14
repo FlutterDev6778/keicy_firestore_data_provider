@@ -325,7 +325,7 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
       case "like":
         dynamic start = [val];
         dynamic end = [val + '\uf8ff'];
-        query = query.orderBy(key).startAt([start]).endAt([end]);
+        query = query.orderBy(key).startAt(start).endAt(end);
         break;
       default:
         query = query.where(key, isEqualTo: val);
