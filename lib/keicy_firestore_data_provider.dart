@@ -322,6 +322,11 @@ Query _getQuery(Query query, List<Map<String, dynamic>> wheres) {
       case "arrayContainsAny":
         query = query.where(key, arrayContainsAny: val);
         break;
+      case "like":
+        dynamic start = [val];
+        dynamic end = [val + '\uf8ff'];
+        query = query.orderBy(key).startAt([start]).endAt([end]);
+        break;
       default:
         query = query.where(key, isEqualTo: val);
         break;
