@@ -101,7 +101,7 @@ class KeicyFireStoreDataProvider {
       query = ref;
       if (wheres != null) query = _getQuery(query, wheres);
       if (orderby != null) query = _getOrderby(query, orderby);
-      if (limit != null) query.limit(limit);
+      if (limit != null) query = query.limit(limit);
       QuerySnapshot snapshot = await query.getDocuments();
       List<Map<String, dynamic>> data = [];
       for (var i = 0; i < snapshot.documents.length; i++) {
@@ -126,7 +126,7 @@ class KeicyFireStoreDataProvider {
       query = ref;
       if (wheres != null) query = _getQuery(query, wheres);
       if (orderby != null) query = _getOrderby(query, orderby);
-      if (limit != null) query.limit(limit);
+      if (limit != null) query = query.limit(limit);
       return query.snapshots().map((snapshot) {
         return snapshot.documents.map((document) {
           Map<String, dynamic> data = document.data;
@@ -149,7 +149,7 @@ class KeicyFireStoreDataProvider {
       query = ref;
       if (wheres != null) query = _getQuery(query, wheres);
       if (orderby != null) query = _getOrderby(query, orderby);
-      if (limit != null) query.limit(limit);
+      if (limit != null) query = query.limit(limit);
       QuerySnapshot snapshot = await query.getDocuments();
       return {"state": true, "data": snapshot.documents.length};
     } catch (e) {
@@ -167,7 +167,7 @@ class KeicyFireStoreDataProvider {
       query = ref;
       if (wheres != null) query = _getQuery(query, wheres);
       if (orderby != null) query = _getOrderby(query, orderby);
-      if (limit != null) query.limit(limit);
+      if (limit != null) query = query.limit(limit);
       return query.snapshots().map((snapshot) {
         return snapshot.documents.length;
       });
@@ -199,7 +199,7 @@ class KeicyFireStoreDataProvider {
       parentQuery = parentRef;
       if (parentWheres != null) parentQuery = _getQuery(parentQuery, parentWheres);
       if (parentOrderby != null) parentQuery = _getOrderby(parentQuery, parentOrderby);
-      if (parentLimit != null) parentQuery.limit(parentLimit);
+      if (parentLimit != null) parentQuery = parentQuery.limit(parentLimit);
       parentQuery.snapshots().map((snapshot) async {
         return Future.wait(snapshot.documents.map((document) async {
           Map<String, dynamic> parentData = document.data;
@@ -208,7 +208,7 @@ class KeicyFireStoreDataProvider {
           childQuery = childRef;
           if (childWheres != null) childQuery = _getQuery(childQuery, childWheres);
           if (childOrderby != null) childQuery = _getOrderby(childQuery, childOrderby);
-          if (childLimit != null) childQuery.limit(childLimit);
+          if (childLimit != null) childQuery = childQuery.limit(childLimit);
           try {
             childSnapshot = await childQuery.getDocuments();
             for (var j = 0; j < childSnapshot.documents.length; j++) {
@@ -251,7 +251,7 @@ class KeicyFireStoreDataProvider {
       parentQuery = parentRef;
       if (parentWheres != null) parentQuery = _getQuery(parentQuery, parentWheres);
       if (parentOrderby != null) parentQuery = _getOrderby(parentQuery, parentOrderby);
-      if (parentLimit != null) parentQuery.limit(parentLimit);
+      if (parentLimit != null) parentQuery = parentQuery.limit(parentLimit);
       return parentQuery.snapshots().map((parentSnapshot) {
         return parentSnapshot.documents.map((parentDocument) {
           Map<String, dynamic> parentData = parentDocument.data;
@@ -260,7 +260,7 @@ class KeicyFireStoreDataProvider {
           childQuery = childRef;
           if (childWheres != null) childQuery = _getQuery(childQuery, childWheres);
           if (childOrderby != null) childQuery = _getOrderby(childQuery, childOrderby);
-          if (childLimit != null) childQuery.limit(childLimit);
+          if (childLimit != null) childQuery = childQuery.limit(childLimit);
           return childQuery.snapshots().map((snapshot) {
             return snapshot.documents.map((document) {
               Map<String, dynamic> childData = document.data;
