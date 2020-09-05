@@ -5,31 +5,45 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class KeicyFireStoreDataProvider {
   static KeicyFireStoreDataProvider _instance = KeicyFireStoreDataProvider();
   static KeicyFireStoreDataProvider get instance => _instance;
 
+  final RegExp regExp = RegExp(r'(PlatformException\()|(FirebaseError)|([(:,.)])');
+
   Future<Map<String, dynamic>> addDocument({@required String path, @required Map<String, dynamic> data}) async {
     try {
-      final ref = await Firestore.instance.collection(path).add(data);
-      if (ref != null) {
-        data['id'] = ref.documentID;
-        var res = await updateDocument(
-          path: path,
-          id: ref.documentID,
-          data: {'id': ref.documentID},
-        );
-        if (res) {
-          return {"state": true, "data": data};
-        } else {
-          return {"state": false};
-        }
+      var ref = await Firestore.instance.collection(path).add(data);
+      data['id'] = ref.documentID;
+      var res = await updateDocument(
+        path: path,
+        id: ref.documentID,
+        data: {'id': ref.documentID},
+      );
+      if (res) {
+        return {"state": true, "data": data};
+      } else {
+        return {"state": false, "errorCode": 1234, "errorString": "Firestore Error"};
       }
+    } on PlatformException catch (e) {
+      return {"state": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase addDocument error ____________");
-      print(e);
-      return {"state": false};
+      List<String> list = e.toString().split(regExp);
+
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+
+      ///   --- Error Codes ---
+      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
+      ///
+      return {"state": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -38,7 +52,6 @@ class KeicyFireStoreDataProvider {
       await Firestore.instance.collection(path).document(id).updateData(data);
       return true;
     } catch (e) {
-      print("____________ firebase updateDocument error ____________");
       print(e);
       return false;
     }
@@ -72,10 +85,23 @@ class KeicyFireStoreDataProvider {
       Map<String, dynamic> data = documentSnapshot.data;
       data["id"] = documentSnapshot.documentID;
       return {"state": true, "data": data};
+    } on PlatformException catch (e) {
+      return {"state": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase getDocumentByID error ____________");
-      print(e);
-      return {"state": false};
+      List<String> list = e.toString().split(regExp);
+
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+
+      ///   --- Error Codes ---
+      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
+      ///
+      return {"state": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -92,8 +118,12 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future<Map<String, dynamic>> getDocumentData(
-      {@required String path, List<Map<String, dynamic>> wheres, List<Map<String, dynamic>> orderby, int limit}) async {
+  Future<Map<String, dynamic>> getDocumentData({
+    @required String path,
+    List<Map<String, dynamic>> wheres,
+    List<Map<String, dynamic>> orderby,
+    int limit,
+  }) async {
     CollectionReference ref;
     Query query;
     try {
@@ -110,15 +140,32 @@ class KeicyFireStoreDataProvider {
         data.add(tmp);
       }
       return {"state": true, "data": data};
+    } on PlatformException catch (e) {
+      return {"state": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase getDocumentData error ____________");
-      print(e);
-      return {"state": false};
+      List<String> list = e.toString().split(regExp);
+
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+
+      ///   --- Error Codes ---
+      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
+      ///
+      return {"state": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
-  Stream<List<Map<String, dynamic>>> getDocumentsStream(
-      {@required String path, List<Map<String, dynamic>> wheres, List<Map<String, dynamic>> orderby, int limit}) {
+  Stream<List<Map<String, dynamic>>> getDocumentsStream({
+    @required String path,
+    List<Map<String, dynamic>> wheres,
+    List<Map<String, dynamic>> orderby,
+    int limit,
+  }) {
     try {
       CollectionReference ref;
       Query query;
@@ -140,8 +187,12 @@ class KeicyFireStoreDataProvider {
     }
   }
 
-  Future<Map<String, dynamic>> getDocumentsLength(
-      {@required String path, List<Map<String, dynamic>> wheres, List<Map<String, dynamic>> orderby, int limit}) async {
+  Future<Map<String, dynamic>> getDocumentsLength({
+    @required String path,
+    List<Map<String, dynamic>> wheres,
+    List<Map<String, dynamic>> orderby,
+    int limit,
+  }) async {
     CollectionReference ref;
     Query query;
     try {
@@ -152,10 +203,23 @@ class KeicyFireStoreDataProvider {
       if (limit != null) query = query.limit(limit);
       QuerySnapshot snapshot = await query.getDocuments();
       return {"state": true, "data": snapshot.documents.length};
+    } on PlatformException catch (e) {
+      return {"state": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("____________ firebase getDocumentData error ____________");
-      print(e);
-      return {"state": false};
+      List<String> list = e.toString().split(regExp);
+
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+
+      ///   --- Error Codes ---
+      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
+      ///
+      return {"state": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -226,9 +290,23 @@ class KeicyFireStoreDataProvider {
 
       parentSnapshot = await parentQuery.getDocuments();
       for (var i = 0; i < parentSnapshot.documents.length; i++) {}
+    } on PlatformException catch (e) {
+      return {"state": false, "errorCode": e.code, "errorString": e.message};
     } catch (e) {
-      print("getDocument Error : $e");
-      return {"state": false};
+      List<String> list = e.toString().split(regExp);
+
+      String errorString = list[2];
+      String errorCode;
+      if (e.toString().contains("FirebaseError")) {
+        errorCode = list[4];
+      } else {
+        errorCode = list[2];
+      }
+
+      ///   --- Error Codes ---
+      /// ERROR_USER_NOT_FOUND, ERROR_WRONG_PASSWORD,ERROR_NETWORK_REQUEST_FAILED
+      ///
+      return {"state": false, "errorCode": errorCode, "errorString": errorString};
     }
   }
 
@@ -277,11 +355,6 @@ class KeicyFireStoreDataProvider {
       print(e);
       return null;
     }
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
   }
 }
 
