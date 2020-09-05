@@ -23,7 +23,10 @@ class KeicyFireStoreDataProvider {
         data: {'id': ref.documentID},
       );
       if (res) {
-        return {"state": true, "data": data};
+        return {
+          "state": true,
+          "data": [data]
+        };
       } else {
         return {"state": false, "errorCode": 1234, "errorString": "Firestore Error"};
       }
