@@ -60,6 +60,16 @@ class KeicyFireStoreDataProvider {
     }
   }
 
+  Future<bool> setDocument({@required String path, @required String id, @required Map<String, dynamic> data, bool merge = true}) async {
+    try {
+      await Firestore.instance.collection(path).document(id).setData(data, merge: merge);
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
+    }
+  }
+
   Future<bool> deleteDocument({@required String path, @required String id}) async {
     try {
       await Firestore.instance.collection(path).document(id).delete();
